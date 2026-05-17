@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import {
   createPost,
+  deleteComment,
   getCommentsByPostId,
   getPostsByUserId,
 } from '@/api/posts'
@@ -95,6 +96,18 @@ const openPost = async (post, shouldLoadComments = true) => {
 
 const clearCreatePostError = () => {
   createPostError.value = ''
+}
+
+const handleDeleteComment = async (commentId) => {
+  commentsError.value = ''
+
+  try {
+    await deleteComment(commentId)
+
+    comments.value = comments.value.filter((comment) => comment.id !== commentId)
+  } catch {
+    commentsError.value = 'Failed to delete comment'
+  }
 }
 
 const handleCreatePost = async ({ title, body }) => {
@@ -206,6 +219,7 @@ onMounted(loadPosts)
           :comments="comments"
           :is-loading="areCommentsLoading"
           :error="commentsError"
+          @delete-comment="handleDeleteComment"
         />
       </div>
     </div>

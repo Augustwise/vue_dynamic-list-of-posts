@@ -45,3 +45,16 @@ export const getCommentsByPostId = async (postId) => {
 
   return Array.isArray(comments) ? comments : [comments]
 }
+
+export const deleteComment = async (commentId) => {
+  const response = await fetch(
+    `${COMMENTS_URL}/${encodeURIComponent(commentId)}`,
+    {
+      method: 'DELETE',
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error('Unable to delete a comment right now')
+  }
+}

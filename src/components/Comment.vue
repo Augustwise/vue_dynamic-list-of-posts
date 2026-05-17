@@ -5,6 +5,8 @@ defineProps({
     required: true,
   },
 })
+
+defineEmits(['delete'])
 </script>
 
 <template>
@@ -14,7 +16,12 @@ defineProps({
         {{ comment.name }}
       </a>
 
-      <button type="button" class="delete is-small" aria-label="delete"></button>
+      <button
+        type="button"
+        class="delete is-small"
+        aria-label="delete"
+        @click="$emit('delete', comment.id)"
+      ></button>
     </div>
 
     <div class="message-body">{{ comment.body }}</div>

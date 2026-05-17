@@ -21,6 +21,8 @@ defineProps({
     default: '',
   },
 })
+
+defineEmits(['delete-comment'])
 </script>
 
 <template>
@@ -62,6 +64,7 @@ defineProps({
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
+        @delete="$emit('delete-comment', $event)"
       />
     </template>
   </div>

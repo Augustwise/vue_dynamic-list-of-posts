@@ -22,9 +22,7 @@ defineEmits(['logout'])
             <p>User: {{ user.name }}</p>
           </div>
 
-          <button type="button" class="button is-light" @click="$emit('logout')">
-            Logout
-          </button>
+          <button type="button" class="button is-light" @click="$emit('logout')">Logout</button>
         </div>
       </div>
     </div>

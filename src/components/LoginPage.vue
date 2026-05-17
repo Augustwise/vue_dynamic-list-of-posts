@@ -138,11 +138,7 @@ const handleSubmit = async () => {
       />
 
       <div class="field">
-        <button
-          type="submit"
-          class="button is-primary"
-          :class="{ 'is-loading': isLoading }"
-        >
+        <button type="submit" class="button is-primary" :class="{ 'is-loading': isLoading }">
           Login
         </button>
       </div>

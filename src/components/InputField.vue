@@ -16,9 +16,17 @@ defineProps({
     type: String,
     required: true,
   },
+  type: {
+    type: String,
+    default: 'text',
+  },
   placeholder: {
     type: String,
     required: true,
+  },
+  icon: {
+    type: String,
+    default: 'fas fa-user',
   },
   error: {
     type: String,
@@ -43,7 +51,7 @@ defineEmits(['update:modelValue'])
       <input
         :id="id"
         :value="modelValue"
-        type="text"
+        :type="type"
         :name="name"
         :placeholder="placeholder"
         class="input"
@@ -52,14 +60,10 @@ defineEmits(['update:modelValue'])
       />
 
       <span class="icon is-small is-left">
-        <i class="fas fa-user"></i>
+        <i :class="icon"></i>
       </span>
 
-      <span
-        v-if="error"
-        class="icon is-small is-right has-text-danger"
-        data-cy="ErrorIcon"
-      >
+      <span v-if="error" class="icon is-small is-right has-text-danger" data-cy="ErrorIcon">
         <i class="fas fa-exclamation-triangle"></i>
       </span>
     </div>

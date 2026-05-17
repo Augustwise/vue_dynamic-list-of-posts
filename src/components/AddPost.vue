@@ -86,21 +86,13 @@ const handleSubmit = () => {
 
       <div class="field is-grouped">
         <div class="control">
-          <button
-            type="submit"
-            class="button is-link"
-            :class="{ 'is-loading': isLoading }"
-          >
+          <button type="submit" class="button is-link" :class="{ 'is-loading': isLoading }">
             Create
           </button>
         </div>
 
         <div class="control">
-          <button
-            type="button"
-            class="button is-link is-light"
-            @click="$emit('cancel')"
-          >
+          <button type="button" class="button is-link is-light" @click="$emit('cancel')">
             Cancel
           </button>
         </div>

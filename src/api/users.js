@@ -1,9 +1,7 @@
 const USERS_URL = 'https://mate.academy/students-api/users'
 
 export const findUserByEmail = async (email) => {
-  const response = await fetch(
-    `${USERS_URL}?email=${encodeURIComponent(email)}`,
-  )
+  const response = await fetch(`${USERS_URL}?email=${encodeURIComponent(email)}`)
 
   if (!response.ok) {
     throw new Error('Unable to check this email right now')

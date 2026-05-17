@@ -1,12 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-import {
-  createPost,
-  deleteComment,
-  getCommentsByPostId,
-  getPostsByUserId,
-} from '@/api/posts'
+import { createPost, deleteComment, getCommentsByPostId, getPostsByUserId } from '@/api/posts'
 import AddPost from './AddPost.vue'
 import PostLoader from './PostLoader.vue'
 import PostPreview from './PostPreview.vue'
@@ -25,6 +20,7 @@ const selectedPost = ref(null)
 const comments = ref([])
 const commentsError = ref('')
 const areCommentsLoading = ref(false)
+const isCommentFormOpen = ref(false)
 const sidebarMode = ref('')
 const isCreatingPost = ref(false)
 const createPostError = ref('')
@@ -54,6 +50,7 @@ const openCreatePostForm = () => {
   comments.value = []
   commentsError.value = ''
   areCommentsLoading.value = false
+  isCommentFormOpen.value = false
   sidebarMode.value = 'create'
   createPostFormKey.value += 1
   resetCreatePostState()
@@ -64,6 +61,7 @@ const closeSidebar = () => {
   comments.value = []
   commentsError.value = ''
   areCommentsLoading.value = false
+  isCommentFormOpen.value = false
   sidebarMode.value = ''
   resetCreatePostState()
 }
@@ -83,11 +81,17 @@ const loadComments = async (postId) => {
 }
 
 const openPost = async (post, shouldLoadComments = true) => {
+  const isDifferentPost = selectedPost.value?.id !== post.id
+
   selectedPost.value = post
   comments.value = []
   commentsError.value = ''
   sidebarMode.value = 'preview'
   resetCreatePostState()
+
+  if (isDifferentPost) {
+    isCommentFormOpen.value = false
+  }
 
   if (shouldLoadComments) {
     await loadComments(post.id)
@@ -108,6 +112,11 @@ const handleDeleteComment = async (commentId) => {
   } catch {
     commentsError.value = 'Failed to delete comment'
   }
+}
+
+const handleCreateComment = (comment) => {
+  comments.value = [...comments.value, comment]
+  isCommentFormOpen.value = false
 }
 
 const handleCreatePost = async ({ title, body }) => {
@@ -135,23 +144,13 @@ onMounted(loadPosts)
 </script>
 
 <template>
-  <div
-    class="PostsLayout"
-    :class="{ 'PostsLayout--with-sidebar': isSidebarOpen }"
-  >
-    <div
-      class="PostsListTile"
-      :class="{ 'PostsListTile--with-sidebar': isSidebarOpen }"
-    >
+  <div class="PostsLayout" :class="{ 'PostsLayout--with-sidebar': isSidebarOpen }">
+    <div class="PostsListTile" :class="{ 'PostsListTile--with-sidebar': isSidebarOpen }">
       <div class="box is-success">
         <div class="block">
           <div class="block is-flex is-justify-content-space-between">
             <p class="title">Posts</p>
-            <button
-              type="button"
-              class="button is-link"
-              @click="openCreatePostForm"
-            >
+            <button type="button" class="button is-link" @click="openCreatePostForm">
               Add New Post
             </button>
           </div>
@@ -162,17 +161,11 @@ onMounted(loadPosts)
             {{ error }}
           </div>
 
-          <div
-            v-else-if="posts.length === 0"
-            class="notification is-warning is-light"
-          >
+          <div v-else-if="posts.length === 0" class="notification is-warning is-light">
             No posts yet
           </div>
 
-          <table
-            v-else
-            class="table is-fullwidth is-striped is-hoverable is-narrow"
-          >
+          <table v-else class="table is-fullwidth is-striped is-hoverable is-narrow">
             <thead>
               <tr class="has-background-link-light">
                 <th>ID</th>
@@ -186,13 +179,7 @@ onMounted(loadPosts)
                 <td>{{ post.id }}</td>
                 <td>{{ post.title }}</td>
                 <td class="has-text-right is-vcentered">
-                  <button
-                    type="button"
-                    class="button is-link"
-                    @click="openPost(post)"
-                  >
-                    Open
-                  </button>
+                  <button type="button" class="button is-link" @click="openPost(post)">Open</button>
                 </td>
               </tr>
             </tbody>
@@ -219,7 +206,11 @@ onMounted(loadPosts)
           :comments="comments"
           :is-loading="areCommentsLoading"
           :error="commentsError"
+          :is-comment-form-open="isCommentFormOpen"
+          @cancel-comment="isCommentFormOpen = false"
+          @create-comment="handleCreateComment"
           @delete-comment="handleDeleteComment"
+          @write-comment="isCommentFormOpen = true"
         />
       </div>
     </div>
@@ -261,7 +252,9 @@ onMounted(loadPosts)
 
   .PostsListTile {
     flex: 1 1 100%;
-    transition: flex-basis 0.5s ease-in-out, max-width 0.5s ease-in-out;
+    transition:
+      flex-basis 0.5s ease-in-out,
+      max-width 0.5s ease-in-out;
   }
 
   .PostsListTile--with-sidebar {

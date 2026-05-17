@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 
 import AppHeader from './components/AppHeader.vue'
 import LoginPage from './components/LoginPage.vue'
@@ -29,14 +29,37 @@ const getSavedUser = () => {
 
 const user = ref(getSavedUser())
 
-const goTo = (path) => {
+const redirectTo = (path) => {
   if (window.location.pathname !== path) {
-    window.history.pushState({}, '', path)
+    window.history.replaceState({}, '', path)
   }
 }
 
-if (!user.value && window.location.pathname !== '/login') {
-  window.history.replaceState({}, '', '/login')
+const syncAuthRoute = () => {
+  if (!user.value && window.location.pathname !== '/login') {
+    redirectTo('/login')
+
+    return
+  }
+
+  if (user.value && window.location.pathname === '/login') {
+    redirectTo('/')
+  }
+}
+
+syncAuthRoute()
+
+window.addEventListener('popstate', syncAuthRoute)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', syncAuthRoute)
+})
+
+const goTo = (path) => {
+  if (window.location.pathname !== path) {
+    window.history.pushState({}, '', path)
+    syncAuthRoute()
+  }
 }
 
 const handleLogin = (loggedInUser) => {

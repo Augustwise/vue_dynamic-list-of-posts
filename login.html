@@ -1,35 +1,17 @@
-<style>
-  @import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
-</style>
-<div data-theme="light" style="color-scheme: light;">
-  <section class="container is-flex is-justify-content-center">
-    <form onSubmit="{handleSubmit}" class="box mt-5">
-      <h1 class="title is-3">You need to register</h1>
-
-      <div class="field">
-        <label class="label" for="user-email"> Email </label>
-
-        <div class="control has-icons-left">
-          <input
-            type="email"
-            id="user-email"
-            name="email"
-            class="input"
-            placeholder="Enter your email"
-            required
-          />
-
-          <span class="icon is-small is-left">
-            <i class="fas fa-envelope" />
-          </span>
-        </div>
-
-        <p class="help is-danger">error message</p>
-      </div>
-
-      <div class="field">
-        <button type="submit" class="button is-primary">Login</button>
-      </div>
-    </form>
-  </section>
-</div>
+<!DOCTYPE html>
+<html lang="" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light">
+    <link rel="icon" href="/favicon.ico">
+    <style>
+      @import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

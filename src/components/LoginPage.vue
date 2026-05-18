@@ -30,6 +30,14 @@ const handleEmailUpdate = () => {
   shouldAskName.value = false
 }
 
+const handleClear = () => {
+  email.value = ''
+  name.value = ''
+  emailError.value = ''
+  nameError.value = ''
+  shouldAskName.value = false
+}
+
 const validateEmail = () => {
   if (!trimmedEmail.value) {
     emailError.value = 'Email is required'
@@ -137,10 +145,16 @@ const handleSubmit = async () => {
         @update:model-value="nameError = ''"
       />
 
-      <div class="field">
-        <button type="submit" class="button is-primary" :class="{ 'is-loading': isLoading }">
-          Login
-        </button>
+      <div class="field is-grouped">
+        <div class="control">
+          <button type="submit" class="button is-primary" :class="{ 'is-loading': isLoading }">
+            Login
+          </button>
+        </div>
+
+        <div class="control">
+          <button type="button" class="button is-primary is-light" @click="handleClear">Clear</button>
+        </div>
       </div>
     </form>
   </section>

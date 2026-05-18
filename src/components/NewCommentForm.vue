@@ -44,6 +44,13 @@ const clearFieldError = (fieldName) => {
   submitError.value = ''
 }
 
+const handleClear = () => {
+  commentFormErrors.name = ''
+  commentFormErrors.email = ''
+  commentFormErrors.body = ''
+  submitError.value = ''
+}
+
 const handleSubmit = async () => {
   submitError.value = ''
 
@@ -126,6 +133,10 @@ const handleSubmit = async () => {
         <button type="submit" class="button is-link" :class="{ 'is-loading': isSubmitting }">
           Add Comment
         </button>
+      </div>
+
+      <div class="control">
+        <button type="button" class="button is-link is-light" @click="handleClear">Clear</button>
       </div>
 
       <div class="control">

@@ -1,8 +1,16 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-import { createPost, deleteComment, getCommentsByPostId, getPostsByUserId } from '@/api/posts'
+import {
+  createPost,
+  deleteComment,
+  deletePost,
+  getCommentsByPostId,
+  getPostsByUserId,
+  updatePost,
+} from '@/api/posts'
 import AddPost from './AddPost.vue'
+import EditPost from './EditPost.vue'
 import PostLoader from './PostLoader.vue'
 import PostPreview from './PostPreview.vue'
 
@@ -26,6 +34,10 @@ const sidebarMode = ref('')
 const isCreatingPost = ref(false)
 const createPostError = ref('')
 const createPostFormKey = ref(0)
+const isUpdatingPost = ref(false)
+const updatePostError = ref('')
+const isDeletingPost = ref(false)
+const deletePostError = ref('')
 
 const isSidebarOpen = computed(() => Boolean(sidebarMode.value))
 
@@ -46,6 +58,14 @@ const resetCreatePostState = () => {
   createPostError.value = ''
 }
 
+const resetEditPostState = () => {
+  updatePostError.value = ''
+}
+
+const resetDeletePostState = () => {
+  deletePostError.value = ''
+}
+
 const openCreatePostForm = () => {
   selectedPost.value = null
   comments.value = []
@@ -56,6 +76,8 @@ const openCreatePostForm = () => {
   sidebarMode.value = 'create'
   createPostFormKey.value += 1
   resetCreatePostState()
+  resetEditPostState()
+  resetDeletePostState()
 }
 
 const closeSidebar = () => {
@@ -67,6 +89,8 @@ const closeSidebar = () => {
   isCommentFormOpen.value = false
   sidebarMode.value = ''
   resetCreatePostState()
+  resetEditPostState()
+  resetDeletePostState()
 }
 
 const loadComments = async (postId) => {
@@ -93,6 +117,8 @@ const openPost = async (post, shouldLoadComments = true) => {
   failedDeleteCommentId.value = null
   sidebarMode.value = 'preview'
   resetCreatePostState()
+  resetEditPostState()
+  resetDeletePostState()
 
   if (isDifferentPost) {
     isCommentFormOpen.value = false
@@ -105,6 +131,10 @@ const openPost = async (post, shouldLoadComments = true) => {
 
 const clearCreatePostError = () => {
   createPostError.value = ''
+}
+
+const clearUpdatePostError = () => {
+  updatePostError.value = ''
 }
 
 const handleDeleteComment = async (commentId) => {
@@ -150,6 +180,71 @@ const handleCreatePost = async ({ title, body }) => {
     createPostError.value = 'Failed to create post'
   } finally {
     isCreatingPost.value = false
+  }
+}
+
+const openEditPostForm = () => {
+  sidebarMode.value = 'edit'
+  resetEditPostState()
+  resetDeletePostState()
+}
+
+const cancelEditPost = () => {
+  sidebarMode.value = 'preview'
+  resetEditPostState()
+}
+
+const handleUpdatePost = async ({ title, body }) => {
+  if (!selectedPost.value) {
+    return
+  }
+
+  updatePostError.value = ''
+  isUpdatingPost.value = true
+
+  try {
+    const updatedPostResponse = await updatePost({
+      id: selectedPost.value.id,
+      title,
+      body,
+    })
+
+    const updatedPost = {
+      ...selectedPost.value,
+      ...updatedPostResponse,
+      title,
+      body,
+    }
+
+    posts.value = posts.value.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    selectedPost.value = updatedPost
+    sidebarMode.value = 'preview'
+  } catch {
+    updatePostError.value = 'Failed to update post'
+  } finally {
+    isUpdatingPost.value = false
+  }
+}
+
+const handleDeletePost = async () => {
+  if (!selectedPost.value) {
+    return
+  }
+
+  const postId = selectedPost.value.id
+
+  deletePostError.value = ''
+  isDeletingPost.value = true
+
+  try {
+    await deletePost(postId)
+
+    posts.value = posts.value.filter((post) => post.id !== postId)
+    closeSidebar()
+  } catch {
+    deletePostError.value = 'Failed to delete post'
+  } finally {
+    isDeletingPost.value = false
   }
 }
 
@@ -213,17 +308,31 @@ onMounted(loadPosts)
           @create="handleCreatePost"
         />
 
+        <EditPost
+          v-else-if="sidebarMode === 'edit' && selectedPost"
+          :post="selectedPost"
+          :is-loading="isUpdatingPost"
+          :error="updatePostError"
+          @cancel="cancelEditPost"
+          @clear-error="clearUpdatePostError"
+          @save="handleUpdatePost"
+        />
+
         <PostPreview
-          v-else-if="selectedPost"
+          v-else-if="sidebarMode === 'preview' && selectedPost"
           :post="selectedPost"
           :comments="comments"
           :is-loading="areCommentsLoading"
           :error="commentsError"
           :can-retry-error="failedDeleteCommentId !== null"
           :is-comment-form-open="isCommentFormOpen"
+          :is-deleting-post="isDeletingPost"
+          :delete-post-error="deletePostError"
           @cancel-comment="isCommentFormOpen = false"
           @create-comment="handleCreateComment"
           @delete-comment="handleDeleteComment"
+          @delete-post="handleDeletePost"
+          @edit-post="openEditPostForm"
           @retry-comment-action="retryDeleteComment"
           @write-comment="isCommentFormOpen = true"
         />

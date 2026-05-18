@@ -30,6 +30,32 @@ export const createPost = async ({ userId, title, body }) => {
   return response.json()
 }
 
+export const updatePost = async ({ id, title, body }) => {
+  const response = await fetch(`${POSTS_URL}/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({ title, body }),
+  })
+
+  if (!response.ok) {
+    throw new Error('Unable to update a post right now')
+  }
+
+  return response.json()
+}
+
+export const deletePost = async (postId) => {
+  const response = await fetch(`${POSTS_URL}/${encodeURIComponent(postId)}`, {
+    method: 'DELETE',
+  })
+
+  if (!response.ok) {
+    throw new Error('Unable to delete a post right now')
+  }
+}
+
 export const getCommentsByPostId = async (postId) => {
   const response = await fetch(`${COMMENTS_URL}?postId=${encodeURIComponent(postId)}`)
 

@@ -29,12 +29,22 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isDeletingPost: {
+    type: Boolean,
+    default: false,
+  },
+  deletePostError: {
+    type: String,
+    default: '',
+  },
 })
 
 defineEmits([
   'cancel-comment',
   'create-comment',
+  'delete-post',
   'delete-comment',
+  'edit-post',
   'retry-comment-action',
   'write-comment',
 ])
@@ -47,17 +57,27 @@ defineEmits([
         <h2>#{{ post.id }}: {{ post.title }}</h2>
 
         <div class="is-flex">
-          <span class="icon is-small is-right is-clickable">
+          <span
+            class="icon is-small is-right is-clickable"
+            @click="!isDeletingPost && $emit('edit-post')"
+          >
             <i class="fas fa-pen-to-square"></i>
           </span>
 
-          <span class="icon is-small is-right has-text-danger is-clickable ml-3">
-            <i class="fas fa-trash"></i>
+          <span
+            class="icon is-small is-right has-text-danger is-clickable ml-3"
+            @click="!isDeletingPost && $emit('delete-post')"
+          >
+            <i :class="isDeletingPost ? 'fas fa-spinner fa-spin' : 'fas fa-trash'"></i>
           </span>
         </div>
       </div>
 
       <p data-cy="PostBody">{{ post.body }}</p>
+
+      <div v-if="deletePostError" class="notification is-danger is-light">
+        {{ deletePostError }}
+      </div>
     </div>
 
     <hr />

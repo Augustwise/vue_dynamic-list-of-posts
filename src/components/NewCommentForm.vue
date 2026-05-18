@@ -110,6 +110,15 @@ const handleSubmit = async () => {
 
     <div v-if="submitError" class="notification is-danger is-light">
       {{ submitError }}
+
+      <button
+        type="button"
+        class="button is-danger is-light is-small ml-3"
+        :class="{ 'is-loading': isSubmitting }"
+        @click="handleSubmit"
+      >
+        Retry
+      </button>
     </div>
 
     <div class="field is-grouped">

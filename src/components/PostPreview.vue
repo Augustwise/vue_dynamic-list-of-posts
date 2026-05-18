@@ -21,6 +21,10 @@ defineProps({
     type: String,
     default: '',
   },
+  canRetryError: {
+    type: Boolean,
+    default: false,
+  },
   isCommentFormOpen: {
     type: Boolean,
     default: false,
@@ -31,6 +35,7 @@ defineEmits([
   'cancel-comment',
   'create-comment',
   'delete-comment',
+  'retry-comment-action',
   'write-comment',
 ])
 </script>
@@ -69,6 +74,15 @@ defineEmits([
 
     <div v-else-if="error" class="notification is-danger is-light">
       {{ error }}
+
+      <button
+        v-if="canRetryError"
+        type="button"
+        class="button is-danger is-light is-small ml-3"
+        @click="$emit('retry-comment-action')"
+      >
+        Retry
+      </button>
     </div>
 
     <NoCommentsYet v-else-if="comments.length === 0" />

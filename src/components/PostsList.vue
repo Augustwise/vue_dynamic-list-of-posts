@@ -21,6 +21,7 @@ const comments = ref([])
 const commentsError = ref('')
 const areCommentsLoading = ref(false)
 const isCommentFormOpen = ref(false)
+const failedDeleteCommentId = ref(null)
 const sidebarMode = ref('')
 const isCreatingPost = ref(false)
 const createPostError = ref('')
@@ -49,6 +50,7 @@ const openCreatePostForm = () => {
   selectedPost.value = null
   comments.value = []
   commentsError.value = ''
+  failedDeleteCommentId.value = null
   areCommentsLoading.value = false
   isCommentFormOpen.value = false
   sidebarMode.value = 'create'
@@ -60,6 +62,7 @@ const closeSidebar = () => {
   selectedPost.value = null
   comments.value = []
   commentsError.value = ''
+  failedDeleteCommentId.value = null
   areCommentsLoading.value = false
   isCommentFormOpen.value = false
   sidebarMode.value = ''
@@ -69,6 +72,7 @@ const closeSidebar = () => {
 const loadComments = async (postId) => {
   comments.value = []
   commentsError.value = ''
+  failedDeleteCommentId.value = null
   areCommentsLoading.value = true
 
   try {
@@ -86,6 +90,7 @@ const openPost = async (post, shouldLoadComments = true) => {
   selectedPost.value = post
   comments.value = []
   commentsError.value = ''
+  failedDeleteCommentId.value = null
   sidebarMode.value = 'preview'
   resetCreatePostState()
 
@@ -104,6 +109,7 @@ const clearCreatePostError = () => {
 
 const handleDeleteComment = async (commentId) => {
   commentsError.value = ''
+  failedDeleteCommentId.value = null
 
   try {
     await deleteComment(commentId)
@@ -111,6 +117,13 @@ const handleDeleteComment = async (commentId) => {
     comments.value = comments.value.filter((comment) => comment.id !== commentId)
   } catch {
     commentsError.value = 'Failed to delete comment'
+    failedDeleteCommentId.value = commentId
+  }
+}
+
+const retryDeleteComment = () => {
+  if (failedDeleteCommentId.value !== null) {
+    handleDeleteComment(failedDeleteCommentId.value)
   }
 }
 
@@ -206,10 +219,12 @@ onMounted(loadPosts)
           :comments="comments"
           :is-loading="areCommentsLoading"
           :error="commentsError"
+          :can-retry-error="failedDeleteCommentId !== null"
           :is-comment-form-open="isCommentFormOpen"
           @cancel-comment="isCommentFormOpen = false"
           @create-comment="handleCreateComment"
           @delete-comment="handleDeleteComment"
+          @retry-comment-action="retryDeleteComment"
           @write-comment="isCommentFormOpen = true"
         />
       </div>
